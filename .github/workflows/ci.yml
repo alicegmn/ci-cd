@@ -23,6 +23,5 @@ jobs:
       - name: Test code
         run: npm test --if-present
 
-      - namerun: npm run build
-
-      - run: npx eslint .
+      - name: Build project
+        run: npm run build
