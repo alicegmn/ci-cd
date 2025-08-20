@@ -25,3 +25,12 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Output branch name
+        run: "echo Branch: ${{ github.ref_name }}"
+
+      - name: Output commit SHA
+        run: "echo Commit: ${{ github.sha }}"
+
+      - name: Display username
+        run: "echo Commit made by: ${{ github.actor }}"
