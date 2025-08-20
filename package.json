@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node -e \"console.log('All good!')\""
+    "test": "echo Hello CI."
   },
   "dependencies": {
     "react": "^19.1.1",
