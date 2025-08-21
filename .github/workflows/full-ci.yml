@@ -17,10 +17,10 @@ jobs:
         with:
           node-version: 22
       - name: Install dependencies
-        uses: npm install
+        run: npm install
       - name: Run tests
-        uses: npm test
+        run: npm test
       - name: Build project
-        uses: npm run build
+        run: npm run build
       - name: Full CI pipeline success message
-        uses: echo "All steps completed successfully!"
+        run: echo "All steps completed successfully!"
