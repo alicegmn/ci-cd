@@ -10,3 +10,5 @@ hej testing testing /alice
 asd
 
 See if rule applied
+
+Test to see if full CI runs on push
