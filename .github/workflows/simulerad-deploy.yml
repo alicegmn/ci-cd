@@ -125,3 +125,6 @@ jobs:
       - name: Full CI pipeline success message
         if: success()
         run: echo "✅ All steps completed successfully!"
+
+      - name: mock
+        run: echo "hello"
