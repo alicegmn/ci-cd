@@ -1,3 +1,4 @@
+---
 name: Full CI
 on:
   push:
@@ -18,8 +19,12 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Linting check
+        run: npm run lint
       - name: Run tests
         run: npm test
+      - name: Force fail step
+        run: exit 1
       - name: Build project
         run: npm run build
       - name: Full CI pipeline success message
