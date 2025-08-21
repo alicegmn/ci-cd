@@ -8,3 +8,5 @@ hej
 hej testing testing /alice
 
 asd
+
+See if rule applied
