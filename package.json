@@ -6,9 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "lint": "eslint . --ext .ts,.tsx",
-    "preview": "vite preview",
-    "test": ""
+    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
+    "preview": "vite preview"
   },
   "dependencies": {
     "ESLint": "npm:eslint@^9.33.0",
