@@ -1,0 +1,127 @@
+name: Full CI (Docker + Azure SQL, simulated)
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  NODE_VERSION: 22
+  # Namn/URL för din App Service (Web App for Containers)
+  AZURE_WEBAPP_NAME: your-webapp-name # tex: my-react-app
+  AZURE_WEBAPP_URL: https://your-webapp-name.azurewebsites.net
+  # Azure Container Registry (ACR)
+  ACR_LOGIN_SERVER: yourregistry.azurecr.io # tex: myacr.azurecr.io
+  IMAGE_NAME: your-app # valfritt kort namn
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # --- CI: Build & Test ---
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      # --- Build Docker image ---
+      - name: Set image tag
+        id: meta
+        run: |
+          SHA_TAG=${GITHUB_SHA::7}
+          echo "tag=${SHA_TAG}" >> $GITHUB_OUTPUT
+          echo "full=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${SHA_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Show Docker image info (simulated)
+        run: |
+          echo "Will build image: ${{ steps.meta.outputs.full }}"
+          echo "Dockerfile path: ./Dockerfile"
+          echo "Build context : ."
+
+      - name: Docker build (simulated)
+        run: |
+          echo "docker build -t ${{ steps.meta.outputs.full }} ."
+          echo "(simulation) Build completed"
+
+      # --- Push to ACR (simulated) ---
+      # RIKTIGT: använd azure/docker-login@v2 eller `az acr login`
+      # Secrets att sätta: ACR_USERNAME, ACR_PASSWORD
+      - name: Docker login to ACR (simulated)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "docker login ${{ env.ACR_LOGIN_SERVER }} -u ${{ secrets.ACR_USERNAME }} -p ***"
+          echo "(simulation) Logged in to ACR"
+
+      - name: Docker push (simulated)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "docker push ${{ steps.meta.outputs.full }}"
+          echo "(simulation) Image pushed to ACR"
+
+      # --- Configure App Service to use new image (simulated) ---
+      # RIKTIGT: använd azure/login + az webapp config container set
+      # Secrets att sätta: AZURE_CREDENTIALS (Service Principal JSON)
+      - name: Azure login (simulated)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "az login --service-principal -u <appId> -p <password> --tenant <tenant> (from AZURE_CREDENTIALS)"
+          echo "(simulation) Azure CLI logged in"
+
+      - name: Update App Service to new image (simulated)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "az webapp config container set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group YOUR_RESOURCE_GROUP \
+            --docker-custom-image-name ${{ steps.meta.outputs.full }} \
+            --docker-registry-server-url https://${{ env.ACR_LOGIN_SERVER }} \
+            --docker-registry-server-user ${{ secrets.ACR_USERNAME }} \
+            --docker-registry-server-password ***"
+          echo "(simulation) App Service configured to new image"
+
+      - name: Restart App Service (simulated)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group YOUR_RESOURCE_GROUP"
+          echo "(simulation) App restarted"
+
+      # --- Run DB migrations against Azure SQL (simulated) ---
+      # RIKTIGT: använd t.ex. sqlcmd eller ditt migreringsverktyg (Prisma/Knex/EF)
+      # Secret att sätta: AZURE_SQL_CONNECTION_STRING
+      - name: Database migrations (simulated)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Using connection: ${{ secrets.AZURE_SQL_CONNECTION_STRING }}"
+          echo "Run: npm run db:migrate"
+          echo "(simulation) Migrations applied"
+
+      # --- Success messages ---
+      - name: Deployment summary
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "🚀 Simulated deploy complete"
+          echo "App Service: ${{ env.AZURE_WEBAPP_NAME }}"
+          echo "Image:       ${{ steps.meta.outputs.full }}"
+          echo "URL:         ${{ env.AZURE_WEBAPP_URL }}"
+
+      - name: Full CI pipeline success message
+        if: success()
+        run: echo "✅ All steps completed successfully!"
