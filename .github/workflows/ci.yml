@@ -34,3 +34,7 @@ jobs:
 
       - name: Display username
         run: "echo Commit made by: ${{ github.actor }}"
+
+      # Lägg till detta steg för att tvinga fram ett fel
+      - name: Force failure
+        run: exit 1
